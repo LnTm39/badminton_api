@@ -4,6 +4,7 @@ var hal = require('../hal');
 
 /* GET home page. */
 router.get('/', async function (req, res, next) {
+  //Bien
   res.send({
     "_links": {
       "self": hal.halLinkObject('/'),

@@ -7,7 +7,7 @@ const validateCreneauId = require('../middlewares/validateCreneauId');
 const validatePseudo = require('../middlewares/validatePseudo');
 const validateDisponible = require('../middlewares/validateDisponible');
 
-/* GET creneaux page. */
+
 router.get('/creneaux', 
 validatePseudo,
 validateDisponible,
@@ -68,6 +68,8 @@ async function (req, res, next) {
     const ressourceObject = {
       "_links": {
           "self": { "href": `/creneaux/${req.params.id}`},
+          //A sortir hors du Link Object, mettre les informations du créneau directement
+          //a la racine du Resource Object (données du créneau demandé par id)
           "creneau": hal.mapCreneauToResourceObject(rows[0], req.baseUrl)
       }
     };

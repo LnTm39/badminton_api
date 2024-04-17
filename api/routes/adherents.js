@@ -7,18 +7,25 @@ const validateAdherentId = require('../middlewares/validateCreneauId');
 const validatePseudo = require('../middlewares/validatePseudo');
 const validateDisponible = require('../middlewares/validateDisponible');
 
+
+//La ressource "liste des adhérents" n'était pas demandée.
 /* GET adherents page. */
 router.get('/adherents', 
 validatePseudo,
+//Pourquoi le middleware disponible sur la liste des adhérents. Le MCD et le dictionnaire des données (absent) (ainsi que le script SQL)
+//ne mentionnent aucun attribut 'disponible' sur un adhérent
 validateDisponible,
 async function (req, res, next) {
   try {
     const disponible = req.query.disponible;
     const end= '';
+    //Attention aux injections SQL !
     if(disponible){
+      //end est déclaré const, impossible de lui réassigner une valeur. Ce code a-t-il été testé ?
         end = ' WHERE disponible = ' + disponible;
     }
     const connection = await pool.getConnection();
+    //Attention aux injections SQL !
     const sql = 'SELECT * FROM adherent' + end + ';';
 
     const [rows] = await connection.query(sql, [disponible]);
@@ -29,6 +36,7 @@ async function (req, res, next) {
     }
 
     const ressourceObject = {
+      //Bien sur HAL
       "self": { 
         "href": `/adherents`
       },
@@ -48,6 +56,7 @@ async function (req, res, next) {
   }
 });
 
+//La ressource "fiche d'un adhérent" n'était pas demandée.
 router.get('/adherents/:id', 
 validatePseudo,
 validateAdherentId,

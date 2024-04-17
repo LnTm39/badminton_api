@@ -26,6 +26,8 @@ CREATE TABLE `creneau` (
   `id_terrain` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+-- Remarque : données redondantes ici (jour de la semaine et les tranches horaires)
+
 INSERT INTO `creneau` (`id`, `heure_debut`, `heure_fin`, `jour`, `disponible`, `id_terrain`) VALUES
 (1, '10:00:00', '10:45:00', 'Lundi', 1, 1),
 (2, '10:45:00', '11:30:00', 'Lundi', 1, 1),

@@ -6,6 +6,7 @@ const authenticateAdmin = require("../middlewares/authenticateAdmin");
 const validateTerrainName = require('../middlewares/validateTerrainName');
 
 router.post('/admin', authenticateAdmin, (req, res) => {
+    //Bien !
     res.send({
       "_links": {
         "self": hal.halLinkObject('/admin'),
@@ -15,11 +16,13 @@ router.post('/admin', authenticateAdmin, (req, res) => {
     })
 });
 
+//La ressource "Liste des réservations" n'était pas demandée.
 router.get('/admin/reservations', 
 authenticateAdmin,
 async function(req, res, next) {
     try {
         const connection = await pool.getConnection();
+        //Pourquoi ne pas écrire tout dans une chaine ?
         const sql1 = 'SELECT r.id AS id_reservation, r.id_creneau, r.id_adherent AS id_adherent,'
         const sql2 = ' c.heure_debut,c.heure_fin, c.jour, c.disponible AS creneau_disponible, a.pseudo, a.role, t.nom, t.disponible AS terrain_disponible' 
         const sql3 = ' FROM `reservation` r LEFT JOIN `adherent` a ON r.id_adherent = a.id '

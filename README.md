@@ -2,20 +2,34 @@
 
 ## Table des matières
 
-- [Lancer le projet](#lancer-le-projet)
-- [Conception](#conception)
-  - [Dictionnaire des données](#dictionnaire-des-données)
-  - [Modèle Conceptuel des Données (MCD)](#modèle-conceptuel-des-données-mcd)
-- [Remarques](#remarques)
-- [Références](#références)
+- [API de Réservation de Terrains de Badminton](#api-de-réservation-de-terrains-de-badminton)
+  - [Table des matières](#table-des-matières)
+  - [Lancer le projet](#lancer-le-projet)
+  - [Conception](#conception)
+    - [Dictionnaire des données](#dictionnaire-des-données)
+    - [Modèle Conceptuel des Données (MCD)](#modèle-conceptuel-des-données-mcd)
+  - [Remarques](#remarques)
+  - [Références](#références)
+  - [Code source](#code-source)
 
 ## Lancer le projet
 
 Pour lancer le projet, suivre les étapes suivantes :
 
-1. Installer les dépendances : `npm install`
-2. Lancer le serveur : `node server.js`
-3. L'URL d'entrée de l'API est : `http://localhost:3000`
+~~~bash
+cd api
+npm install
+npm run swagger-autogen
+node app.js
+~~~
+
+L'API est exposée sur l'URL  `http://localhost:3000`
+
+Tester l'API :
+
+~~~bash
+curl http://localhost:3000
+~~~
 
 ## Conception
 

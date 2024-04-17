@@ -1,14 +1,14 @@
-// adherents.js
+// creneaux.js
 const express = require('express');
 const router = express.Router();
 const hal = require('../hal');
-const pool = require('../db'); // Import the db.js file
-const validateAdherentId = require('../middlewares/validateCreneauId');
+const pool = require('../db');
+const validateCreneauId = require('../middlewares/validateCreneauId');
 const validatePseudo = require('../middlewares/validatePseudo');
 const validateDisponible = require('../middlewares/validateDisponible');
 
-/* GET adherents page. */
-router.get('/adherents', 
+
+router.get('/creneaux', 
 validatePseudo,
 validateDisponible,
 async function (req, res, next) {
@@ -19,21 +19,22 @@ async function (req, res, next) {
         end = ' WHERE disponible = ' + disponible;
     }
     const connection = await pool.getConnection();
-    const sql = 'SELECT * FROM adherent' + end + ';';
+    const sql = 'SELECT * FROM creneau' + end + ';';
 
     const [rows] = await connection.query(sql, [disponible]);
 
     if (rows.length === 0) {
-        res.status(404).json({ "msg": "Aucun adhérent" });
+        let errorMsg = disponible === 1 ? "Tous les creneaux sont indisponibles" : "Tous les creneaux sont disponibles";
+        res.status(404).json({ "msg": errorMsg });
         return;
     }
 
     const ressourceObject = {
-      "self": { 
-        "href": `/adherents`
+      "_links": {
+          "self": { "href": `/creneaux`},
       },
       "_embedded": {
-        "adherents": rows.map(row => hal.mapAdherentToResourceObject(row, req.baseUrl))
+        "creneaux": rows.map(row => hal.mapCreneauSelfToResourceObject(row, req.baseUrl))
       }
     };
 
@@ -48,27 +49,30 @@ async function (req, res, next) {
   }
 });
 
-router.get('/adherents/:id', 
+router.get('/creneaux/:id', 
 validatePseudo,
-validateAdherentId,
+validateCreneauId,
 async function (req, res, next) {
   try {
     const creneauId = req.params.id;
     const connection = await pool.getConnection();
-    const sql = 'SELECT * FROM adherent WHERE id = ?;';
+    const sql = 'SELECT * FROM creneau WHERE id = ?;';
 
     const [rows] = await connection.query(sql, [creneauId]);
 
     if (rows.length === 0) {
-        res.status(404).json({ "msg": "Adhérent inexistant" });
+        res.status(404).json({ "msg": "Créneau inexistant" });
         return;
     }
 
     const ressourceObject = {
-      "self": { 
-        "href": `/adherents/${req.params.id}`},
-        "adherent": hal.mapAdherentToResourceObject(rows[0], req.baseUrl)
-      };
+      "_links": {
+          "self": { "href": `/creneaux/${req.params.id}`},
+          //A sortir hors du Link Object, mettre les informations du créneau directement
+          //a la racine du Resource Object (données du créneau demandé par id)
+          "creneau": hal.mapCreneauToResourceObject(rows[0], req.baseUrl)
+      }
+    };
 
     res.set('Content-Type', 'application/hal+json');
     res.status(200);

@@ -1,40 +1,47 @@
-// creneaux.js
+// adherents.js
 const express = require('express');
 const router = express.Router();
 const hal = require('../hal');
-const pool = require('../db');
-const validateCreneauId = require('../middlewares/validateCreneauId');
+const pool = require('../db'); // Import the db.js file
+const validateAdherentId = require('../middlewares/validateCreneauId');
 const validatePseudo = require('../middlewares/validatePseudo');
 const validateDisponible = require('../middlewares/validateDisponible');
 
-/* GET creneaux page. */
-router.get('/creneaux', 
+
+//La ressource "liste des adhérents" n'était pas demandée.
+/* GET adherents page. */
+router.get('/adherents', 
 validatePseudo,
+//Pourquoi le middleware disponible sur la liste des adhérents. Le MCD et le dictionnaire des données (absent) (ainsi que le script SQL)
+//ne mentionnent aucun attribut 'disponible' sur un adhérent
 validateDisponible,
 async function (req, res, next) {
   try {
     const disponible = req.query.disponible;
     const end= '';
+    //Attention aux injections SQL !
     if(disponible){
+      //end est déclaré const, impossible de lui réassigner une valeur. Ce code a-t-il été testé ?
         end = ' WHERE disponible = ' + disponible;
     }
     const connection = await pool.getConnection();
-    const sql = 'SELECT * FROM creneau' + end + ';';
+    //Attention aux injections SQL !
+    const sql = 'SELECT * FROM adherent' + end + ';';
 
     const [rows] = await connection.query(sql, [disponible]);
 
     if (rows.length === 0) {
-        let errorMsg = disponible === 1 ? "Tous les creneaux sont indisponibles" : "Tous les creneaux sont disponibles";
-        res.status(404).json({ "msg": errorMsg });
+        res.status(404).json({ "msg": "Aucun adhérent" });
         return;
     }
 
     const ressourceObject = {
-      "_links": {
-          "self": { "href": `/creneaux`},
+      //Bien sur HAL
+      "self": { 
+        "href": `/adherents`
       },
       "_embedded": {
-        "creneaux": rows.map(row => hal.mapCreneauSelfToResourceObject(row, req.baseUrl))
+        "adherents": rows.map(row => hal.mapAdherentToResourceObject(row, req.baseUrl))
       }
     };
 
@@ -49,28 +56,28 @@ async function (req, res, next) {
   }
 });
 
-router.get('/creneaux/:id', 
+//La ressource "fiche d'un adhérent" n'était pas demandée.
+router.get('/adherents/:id', 
 validatePseudo,
-validateCreneauId,
+validateAdherentId,
 async function (req, res, next) {
   try {
     const creneauId = req.params.id;
     const connection = await pool.getConnection();
-    const sql = 'SELECT * FROM creneau WHERE id = ?;';
+    const sql = 'SELECT * FROM adherent WHERE id = ?;';
 
     const [rows] = await connection.query(sql, [creneauId]);
 
     if (rows.length === 0) {
-        res.status(404).json({ "msg": "Créneau inexistant" });
+        res.status(404).json({ "msg": "Adhérent inexistant" });
         return;
     }
 
     const ressourceObject = {
-      "_links": {
-          "self": { "href": `/creneaux/${req.params.id}`},
-          "creneau": hal.mapCreneauToResourceObject(rows[0], req.baseUrl)
-      }
-    };
+      "self": { 
+        "href": `/adherents/${req.params.id}`},
+        "adherent": hal.mapAdherentToResourceObject(rows[0], req.baseUrl)
+      };
 
     res.set('Content-Type', 'application/hal+json');
     res.status(200);
